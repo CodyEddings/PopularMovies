@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <!--Error message for network data fetch-->
+    <string name="load_error">Couldn\'t load movies. Check network connection.</string>
+
+    <!--Menu item text: sort mode-->
+    <string name="sort_popularity">Most popular</string>
+    <string name="sort_highest_rated">Highest rated</string>
+    <string name="sort_favorites">Favorites</string>
+
+    <!--Movie Detail Screen Text-->
+    <string name="trailers">Trailers:</string>
+
+    <!--App's Content Provider Authority-->
+    <string name="content_authority">com.example.android.popularmovies</string>
+
+</resources>
