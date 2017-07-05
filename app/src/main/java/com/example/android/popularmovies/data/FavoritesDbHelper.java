@@ -17,7 +17,7 @@ import com.example.android.popularmovies.data.FavoritesContract.FavoritesEntry;
 public class FavoritesDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "favorites.db";
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public FavoritesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,8 +39,17 @@ public class FavoritesDbHelper extends SQLiteOpenHelper {
                  * FavoritesEntry implements the interface, "BaseColumns", which does have a field
                  * named "_ID". We use that here to designate our table's primary key.
                  */
-                        FavoritesEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        FavoritesEntry.COLUMN_TITLE       + " STRING, ";
+                        FavoritesEntry._ID              + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        FavoritesEntry.MOVIE_TITLE      + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_ID         + " INTEGER NOT NULL, "                  +
+
+                /*
+                 * To ensure this table can only contain one weather entry per date, we declare
+                 * the date column to be unique. We also specify "ON CONFLICT REPLACE". This tells
+                 * SQLite that if we have a weather entry for a certain date and we attempt to
+                 * insert another weather entry with that date, we replace the old weather entry.
+                 */
+                        " UNIQUE (" + FavoritesEntry.MOVIE_TITLE + ") ON CONFLICT REPLACE);";
         /*
          * After we've spelled out our SQLite table creation statement above, we actually execute
          * that SQL with the execSQL method of our SQLite database object.

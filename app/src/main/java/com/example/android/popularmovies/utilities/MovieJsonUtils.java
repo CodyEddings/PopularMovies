@@ -32,17 +32,14 @@ public class MovieJsonUtils {
     public static String[] getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
             throws JSONException {
 
-        /* Movie information. Each day's forecast info is an element of the "list" array */
+        /* Movie information. Each movie's collective detail info is an element of the parsedMovieData array */
         final String OWM_RESULTS = "results";
-
-        final String OWM_MOVIE = "movie";
-
         final String OWM_TITLE = "title";
         final String OWM_SYNOPSIS = "overview";
-        final String OWM_POPULARITY = "popularity";
         final String OWM_RELEASE = "release_date";
         final String OWM_POSTER = "poster_path";
         final String OWM_RATING = "vote_average";
+        final String OWM_ID = "id";
 
         final String OWM_MESSAGE_CODE = "cod";
 
@@ -57,6 +54,7 @@ public class MovieJsonUtils {
 
             switch (errorCode) {
                 case HttpURLConnection.HTTP_OK:
+                    /* Successful connection to server */
                     break;
                 case HttpURLConnection.HTTP_NOT_FOUND:
                     /* Location invalid */
@@ -78,8 +76,9 @@ public class MovieJsonUtils {
             String posterPath;
             String title;
             String rating;
+            String id;
 
-            /* Get the JSON object representing the day */
+            /* Get the JSON object representing a movie's data */
             JSONObject movieData = movieArray.getJSONObject(i);
 
             posterPath = movieData.getString(OWM_POSTER);
@@ -87,24 +86,15 @@ public class MovieJsonUtils {
             releaseDate = movieData.getString(OWM_RELEASE);
             title = movieData.getString(OWM_TITLE);
             rating = movieData.getString(OWM_RATING);
+            id = movieData.getString(OWM_ID);
 
             parsedMovieData[i] = posterPath + " - " + plot + " - " + releaseDate
-                    + " - " + title + " - " + rating;
+                    + " - " + title + " - " + rating + " - " + id;
+
+//            parsedMovieData[i] = posterPath + " @ " + plot + " @ " + releaseDate
+//                    + " @ " + title + " @ " + rating + " @ " + id;
         }
 
         return parsedMovieData;
-    }
-
-    /**
-     * Parse the JSON and convert it into ContentValues that can be inserted into our database.
-     *
-     * @param context         An application context, such as a service or activity context.
-     * @param forecastJsonStr The JSON to parse into ContentValues.
-     *
-     * @return An array of ContentValues parsed from the JSON.
-     */
-    public static ContentValues[] getFullWeatherDataFromJson(Context context, String forecastJsonStr) {
-        /** This will be implemented in a future lesson **/
-        return null;
     }
 }

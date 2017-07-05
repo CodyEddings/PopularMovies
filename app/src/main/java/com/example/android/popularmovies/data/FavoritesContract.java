@@ -46,7 +46,9 @@ public class FavoritesContract {
         public static final String TABLE_NAME = "favorite_movies";
 
         /* Title of the movie that has been favorited*/
-        public static final String COLUMN_TITLE = "title";
+        public static final String MOVIE_TITLE = "title";
 
+        /* ID of the movie that has been favorited*/
+        public static final String MOVIE_ID = "id";
     }
 }

@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         if (nColumns < 2) return 2;
         return nColumns;
     }
+
     @Override
     public void onClick(String singleMovieData) {
         Class destinationClass = MovieDetailActivity.class;
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
+    //TODO: change to AsyncTask Loader
     public class FetchMovieDataTask extends AsyncTask<String, Void, String[]> {
         @Override
         protected void onPreExecute(){
