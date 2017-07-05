@@ -65,10 +65,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 String posterPath = basePosterURL+size+parts[0];
                 Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
 
-                /*plot = "";
-                for (int i =1; i<parts.length-6;i++){
-                    plot = plot + parts[i];
-                }*/
                 plot = parts[parts.length-7];
                 rating = parts[parts.length-2]+"/10";
                 title = parts[parts.length-3];
@@ -90,7 +86,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                         clearFavorite();
                     }
                     else {
-                        setFavorite();
+                        setFavorite(false);
                     }
                 }
             });
@@ -102,7 +98,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         String selection = FavoritesContract.FavoritesEntry.MOVIE_TITLE + " =?";
         String[] projection = {
                 FavoritesContract.FavoritesEntry._ID,
-                FavoritesContract.FavoritesEntry.MOVIE_TITLE
+                FavoritesContract.FavoritesEntry.MOVIE_TITLE,
+                FavoritesContract.FavoritesEntry.MOVIE_DATA
         };
         String[] args = {title};
 
@@ -110,7 +107,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 projection, selection, args, null);
 
         if (cursor.moveToFirst()){
-            setFavorite();
+            setFavorite(true);
         }
         else{
             clearFavorite();
@@ -120,19 +117,22 @@ public class MovieDetailActivity extends AppCompatActivity {
     /**
      * Save new favorite to SQL via our Content Provider. Movie ID and Title are saved.
      */
-    private void setFavorite(){
+    private void setFavorite(boolean alreadySet){
         favorited = true;
         mFavorited.setColorFilter(fetchAccentColor());
 
-        //call insert method for content provider to add a new row to SQL table for current
-        // favorited movie
-        ContentValues mNewValues = new ContentValues();
-        mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_TITLE, title);    //save movie title
-        mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_ID, movieId);     //save movie id
-        mUri = getContentResolver().insert(
-                FavoritesContract.FavoritesEntry.CONTENT_URI,
-                mNewValues
-        );
+        if (!alreadySet) {
+            //call insert method for content provider to add a new row to SQL table for current
+            // favorited movie
+            ContentValues mNewValues = new ContentValues();
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_TITLE, title);    //save movie title
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_ID, movieId);     //save movie id
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_DATA, rawMovieData);  //save movie data string
+            mUri = getContentResolver().insert(
+                    FavoritesContract.FavoritesEntry.CONTENT_URI,
+                    mNewValues
+            );
+        }
     }
 
     private void clearFavorite(){

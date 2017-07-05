@@ -1,8 +1,10 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -18,11 +20,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.MoviePosterAdapter.MoviePosterAdapterOnClickHandler;
+import com.example.android.popularmovies.data.FavoritesContract;
 import com.example.android.popularmovies.utilities.MovieJsonUtils;
 import com.example.android.popularmovies.utilities.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MoviePosterAdapterOnClickHandler{
 
@@ -92,11 +97,44 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         new FetchMovieDataTask().execute(sortMode);
     }
 
+    /**
+     * Makes the user's favorited movies visible by reading JSON strings for all favorited movies
+     * from SQL table.
+     */
+    private void sortByFavorites(){
+        //TODO: finish
+        List<String> movieData = new ArrayList<>();
+
+        ContentResolver mContentResolver = this.getContentResolver();
+        String[] projection = {
+                FavoritesContract.FavoritesEntry.MOVIE_DATA
+        };
+
+        Cursor cursor = mContentResolver.query(
+                FavoritesContract.FavoritesEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null){
+            int columnIndex = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_DATA);
+            while (cursor.moveToNext()){
+                movieData.add(cursor.getString(columnIndex));
+            }
+            String[] mMovieData = movieData.toArray(new String[0]);
+            mPosterAdapter.setmMovieData(mMovieData);
+        }
+
+    }
+
     //Show grid of movie posters
     private void showMovieDataView(){
         mTextViewErrorDisplay.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
     }
+
 
     //Show network connection error message
     private void showErrorMessage(){
@@ -190,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             loadMovieData("top_rated");
         }
         else if (id == R.id.sort_favorites){
-            //TODO: Sort by favorites
+            sortByFavorites();
         }
         return super.onOptionsItemSelected(item);
     }

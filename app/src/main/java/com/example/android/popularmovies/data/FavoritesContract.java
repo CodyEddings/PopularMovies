@@ -50,5 +50,8 @@ public class FavoritesContract {
 
         /* ID of the movie that has been favorited*/
         public static final String MOVIE_ID = "id";
+
+        /* Raw movie data JSON string*/
+        public static final String MOVIE_DATA = "raw_data";
     }
 }

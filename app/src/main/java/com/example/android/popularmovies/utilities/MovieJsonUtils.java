@@ -90,9 +90,6 @@ public class MovieJsonUtils {
 
             parsedMovieData[i] = posterPath + " - " + plot + " - " + releaseDate
                     + " - " + title + " - " + rating + " - " + id;
-
-//            parsedMovieData[i] = posterPath + " @ " + plot + " @ " + releaseDate
-//                    + " @ " + title + " @ " + rating + " @ " + id;
         }
 
         return parsedMovieData;

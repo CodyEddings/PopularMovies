@@ -96,8 +96,6 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
 
     @Override
     public void onBindViewHolder(MoviePosterAdapterViewHolder moviePosterAdapterViewHolder, int position) {
-        String rawMovieData = mMovieData[position];
-
         String parts[] = mMovieData[position].split("-");
         String posterPath = basePosterURL+size+parts[0];
 
