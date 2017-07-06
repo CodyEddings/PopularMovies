@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         prefSortMode = sharedPref.getString("sort_mode","popular");
 
-        loadMovieData(prefSortMode);
+        boolean firstRun = true;
+        loadMovieData(prefSortMode, firstRun);
     }
 
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     /**
      * Launches AsyncTask to load movie data on a background thread
      */
-    private void loadMovieData(String sortMode){
+    private void loadMovieData(String sortMode, boolean firstRun){
         if (isOnline()){
             showMovieDataView();
             //new FetchMovieDataTask().execute(sortMode);
@@ -106,7 +107,12 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             Bundle loaderParams = new Bundle();
             loaderParams.putString("sortBy", sortMode);
 
-            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, loaderParams, this);
+            if (firstRun) {
+                getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, loaderParams, this);
+            }
+            else {
+                getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, loaderParams, this);
+            }
         }
         else {
             showErrorMessageView();
@@ -179,7 +185,13 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             @Override
             protected void onStartLoading() {
                 Log.d("AsyncTaskLoader: ", "start loading");
-                mLoadingIndicator.setVisibility(View.VISIBLE);
+                if (mMovieData != null){
+                    deliverResult(mMovieData);
+                }
+                else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
 
             /**
@@ -240,46 +252,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     }
 
-    /*//TODO: change to AsyncTask Loader
-    public class FetchMovieDataTask extends AsyncTask<String, Void, String[]> {
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            if (params.length == 0){
-                return null;
-            }
-            String sortBy = params[0];
-            URL movieRequestUrl = NetworkUtils.buildUrl(sortBy);
-            try{
-                String jsonMovieResponse = NetworkUtils
-                        .getResponseFromHttpUrl(movieRequestUrl);
-                String[] simpleJsonMovieData = MovieJsonUtils
-                        .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
-                return simpleJsonMovieData;
-
-            } catch (Exception e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] movieData) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (movieData != null){
-                showMovieDataView();
-                mPosterAdapter.setmMovieData(movieData);
-            } else{
-              showErrorMessageView();
-            }
-        }
-    }*/
-
     /**
      * Check if device has an active connection to the internet
      * @return
@@ -306,11 +278,13 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         int id = item.getItemId();
         if (id == R.id.sort_popularity) {
             //TODO: save preference
-            loadMovieData("popular");
+            boolean firstRun = false;
+            loadMovieData("popular", firstRun);
         }
         else if (id == R.id.sort_highest_rated){
             //TODO: save preference
-            loadMovieData("top_rated");
+            boolean firstRun = false;
+            loadMovieData("top_rated", firstRun);
         }
         else if (id == R.id.sort_favorites){
             sortByFavorites();
