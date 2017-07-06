@@ -5,13 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.*;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,12 +29,12 @@ import com.example.android.popularmovies.data.FavoritesContract;
 import com.example.android.popularmovies.utilities.MovieJsonUtils;
 import com.example.android.popularmovies.utilities.NetworkUtils;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MoviePosterAdapterOnClickHandler{
+public class MainActivity extends AppCompatActivity implements MoviePosterAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<String[]> {
 
     private RecyclerView mRecyclerView;
     private TextView mTextViewErrorDisplay;
@@ -37,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     private MoviePosterAdapter mPosterAdapter;
 
     private String prefSortMode;
+
+    private static final int MOVIE_LOADER_ID = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         //Restore preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         prefSortMode = sharedPref.getString("sort_mode","popular");
-        //prefSortMode = sharedPref.getString("sort_mode","popularity.desc");
 
         loadMovieData(prefSortMode);
     }
@@ -93,8 +99,18 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
      * Launches AsyncTask to load movie data on a background thread
      */
     private void loadMovieData(String sortMode){
-        showMovieDataView();
-        new FetchMovieDataTask().execute(sortMode);
+        if (isOnline()){
+            showMovieDataView();
+            //new FetchMovieDataTask().execute(sortMode);
+
+            Bundle loaderParams = new Bundle();
+            loaderParams.putString("sortBy", sortMode);
+
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, loaderParams, this);
+        }
+        else {
+            showErrorMessageView();
+        }
     }
 
     /**
@@ -102,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
      * from SQL table.
      */
     private void sortByFavorites(){
-        //TODO: finish
         List<String> movieData = new ArrayList<>();
 
         ContentResolver mContentResolver = this.getContentResolver();
@@ -137,12 +152,95 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
 
     //Show network connection error message
-    private void showErrorMessage(){
+    private void showErrorMessageView(){
         mTextViewErrorDisplay.setVisibility(View.VISIBLE);
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
-    //TODO: change to AsyncTask Loader
+    /**
+     * AsyncTask Loader for loading network JSON movie data
+     * @param id
+     * @param loaderArgs
+     * @return
+     */
+    @Override
+    public Loader<String[]> onCreateLoader(int id, final Bundle loaderArgs) {
+        return new android.support.v4.content.AsyncTaskLoader<String[]>(this) {
+
+            /* This String array will hold and help cache our movie data */
+            String[] mMovieData = null;
+
+            /* This String holds the sort type parameter passed in by the caller */
+            String mSortMode = loaderArgs.getString("sortBy");
+
+            /**
+             * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
+             */
+            @Override
+            protected void onStartLoading() {
+                Log.d("AsyncTaskLoader: ", "start loading");
+                mLoadingIndicator.setVisibility(View.VISIBLE);
+            }
+
+            /**
+             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
+             * from themoviedb.org in the background.
+             *
+             * @return Movie data from themoviedb.org as an array of Strings.
+             *         null if an error occurs
+             */
+            @Override
+            public String[] loadInBackground() {
+                Log.d("AsyncTaskLoader: ", "load in background");
+                URL movieRequestUrl = NetworkUtils.buildUrl(mSortMode);
+                Log.d("AsyncTaskLoader: ", "mSortMode = " + mSortMode);
+                try {
+                    String jsonMovieResponse = NetworkUtils
+                            .getResponseFromHttpUrl(movieRequestUrl);
+                    String[] simpleJsonMovieData = MovieJsonUtils
+                            .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
+                    Log.d("AsyncTaskLoader: ", "simpleJSON = " + simpleJsonMovieData);
+                    return simpleJsonMovieData;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param data The result of the load
+             */
+            public void deliverResult(String[] data) {
+                mMovieData = data;
+                Log.d("AsyncTaskLoader: ", "result delivered");
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        Log.d("AsyncTaskLoader: ", "made it here");
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (data != null){
+            Log.d("AsyncTaskLoader: ", "and here");
+            showMovieDataView();
+            mPosterAdapter.setmMovieData(data);
+
+        } else{
+            showErrorMessageView();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {
+
+    }
+
+    /*//TODO: change to AsyncTask Loader
     public class FetchMovieDataTask extends AsyncTask<String, Void, String[]> {
         @Override
         protected void onPreExecute(){
@@ -152,19 +250,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
         @Override
         protected String[] doInBackground(String... params) {
-            /*
-             *   If there's no network connectivity then show the error message and exit task
-             */
-            if (isOnline() == false){
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showErrorMessage();
-                    }
-                });
-                return null;
-            }
-
             if (params.length == 0){
                 return null;
             }
@@ -190,25 +275,23 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 showMovieDataView();
                 mPosterAdapter.setmMovieData(movieData);
             } else{
-              showErrorMessage();
+              showErrorMessageView();
             }
         }
-    }
+    }*/
 
-    //checks if connection to internet is active
-    //referenced from stackoverflow answer:
-    //http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
+    /**
+     * Check if device has an active connection to the internet
+     * @return
+     */
     public boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        }
-        catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return false;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 
     @Override
@@ -222,9 +305,11 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         if (id == R.id.sort_popularity) {
+            //TODO: save preference
             loadMovieData("popular");
         }
         else if (id == R.id.sort_highest_rated){
+            //TODO: save preference
             loadMovieData("top_rated");
         }
         else if (id == R.id.sort_favorites){
