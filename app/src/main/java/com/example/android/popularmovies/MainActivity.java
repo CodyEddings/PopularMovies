@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     private TextView mTextViewErrorDisplay;
     private ProgressBar mLoadingIndicator;
     private MoviePosterAdapter mPosterAdapter;
+    private SharedPreferences sharedPref;
 
     private String prefSortMode;
 
@@ -63,11 +64,16 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         //Restore preferences
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        prefSortMode = sharedPref.getString("sort_mode","popular");
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        prefSortMode = sharedPref.getString(getString(R.string.pref_key_sort),"popular");
 
-        boolean firstRun = true;
-        loadMovieData(prefSortMode, firstRun);
+        if (prefSortMode.equals("popular") || prefSortMode.equals("top_rated")){
+            boolean firstRun = true;
+            loadMovieData(prefSortMode, firstRun);
+        }
+        else if (prefSortMode.equals("favorite")){
+            sortByFavorites();
+        }
     }
 
 
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
             if (firstRun) {
                 getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, loaderParams, this);
+                firstRun = false;
             }
             else {
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, loaderParams, this);
@@ -278,17 +285,25 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         int id = item.getItemId();
         if (id == R.id.sort_popularity) {
             //TODO: save preference
+            setSharedPref("popular");               //save sorting preference
             boolean firstRun = false;
-            loadMovieData("popular", firstRun);
+            loadMovieData("popular", firstRun);     //load movie data (popular)
         }
         else if (id == R.id.sort_highest_rated){
-            //TODO: save preference
+            setSharedPref("top_rated");             //save sorting preference
             boolean firstRun = false;
-            loadMovieData("top_rated", firstRun);
+            loadMovieData("top_rated", firstRun);   //load movie data (top rated)
         }
         else if (id == R.id.sort_favorites){
-            sortByFavorites();
+            setSharedPref("favorite");              //save sorting preference
+            sortByFavorites();                      //load movie data (favorites)
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setSharedPref(String sortMode){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.pref_key_sort), sortMode);
+        editor.commit();
     }
 }
