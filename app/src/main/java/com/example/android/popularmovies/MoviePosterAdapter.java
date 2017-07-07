@@ -10,13 +10,15 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 /**
  * Created by Cody on 3/15/2017.
  */
 
 
 public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.MoviePosterAdapterViewHolder> {
-    private String[] mMovieData;
+    private List<Movie> mMovieData;
     private String basePosterURL = "http://image.tmdb.org/t/p/";
     private String size = "w780";
 
@@ -31,7 +33,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
      * The interface that receives onClick messages.
      */
     public interface MoviePosterAdapterOnClickHandler {
-        void onClick(String movieName);
+        void onClick(Movie movieData);
 
         boolean onOptionsItemsSelected(MenuItem item);
     }
@@ -66,7 +68,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String movieData = mMovieData[adapterPosition];
+            Movie movieData = mMovieData.get(adapterPosition);
             mClickHandler.onClick(movieData);
         }
     }
@@ -96,8 +98,8 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
 
     @Override
     public void onBindViewHolder(MoviePosterAdapterViewHolder moviePosterAdapterViewHolder, int position) {
-        String parts[] = mMovieData[position].split("-");
-        String posterPath = basePosterURL+size+parts[0];
+        String pathToPoster = mMovieData.get(position).posterPath;
+        String posterPath = basePosterURL+size+pathToPoster;
 
         Picasso.with(context).load(posterPath).into(moviePosterAdapterViewHolder.posterImageView);
     }
@@ -107,7 +109,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
         if (mMovieData == null ) {
             return 0;
         }
-        return mMovieData.length;    //return total number of movies we have data for
+        return mMovieData.size();    //return total number of movies we have data for
     }
 
     /**
@@ -117,9 +119,8 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
      *
      * @param data The new movie data to be displayed.
      */
-    public void setmMovieData(String[] data) {
+    public void setmMovieData(List<Movie> data) {
         mMovieData = data;
         notifyDataSetChanged();
     }
-
 }

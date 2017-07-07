@@ -85,12 +85,13 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     @Override
-    public void onClick(String singleMovieData) {
-        Class destinationClass = MovieDetailActivity.class;
+    public void onClick(Movie singleMovieData) {
+        //TODO: fix intent problem
+/*        Class destinationClass = MovieDetailActivity.class;
         Context context = this;
         Intent movieDetailIntent = new Intent(context, destinationClass);
         movieDetailIntent.putExtra(Intent.EXTRA_TEXT, singleMovieData);
-        startActivity(movieDetailIntent);
+        startActivity(movieDetailIntent);*/
     }
 
     @Override
@@ -147,7 +148,13 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             while (cursor.moveToNext()){
                 movieData.add(cursor.getString(columnIndex));
             }
-            String[] mMovieData = movieData.toArray(new String[0]);
+
+            //TODO: store all movie details into SQL to avoid having to parse the details here when
+            //TODO: you create new Movie objects for each favorite
+            List<Movie> mMovieData = new ArrayList<>();
+            for (int i = 0; i < movieData.size(); i++){
+                //TODO: make new movie objects
+            }
             mPosterAdapter.setmMovieData(mMovieData);
         }
 
@@ -306,11 +313,17 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (data != null){
+            showMovieDataView();
+            mPosterAdapter.setmMovieData(data);
 
+        } else{
+            showErrorMessageView();
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<List<Movie>> loader) {
-
     }
 }

@@ -72,7 +72,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 String posterPath = basePosterURL+size+parts[0];
                 Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
 
-                //TODO: fix plot hyphen problem
+                //TODO: refactor to accept Movie data instead of parsed string
                 plot = parts[parts.length-7];
                 rating = parts[parts.length-2]+"/10";
                 title = parts[parts.length-3];

@@ -1,7 +1,7 @@
 package com.example.android.popularmovies.utilities;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.support.v4.content.AsyncTaskLoader;
 
 import com.example.android.popularmovies.Movie;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * Created by Cody on 7/7/2017.
  */
 
-public class AsyncTaskLoader_MovieData extends AsyncTaskLoader<List<Movie>>{
+public class AsyncTaskLoader_MovieData extends AsyncTaskLoader<List<Movie>> {
     private String mSortMode;
     private List<Movie> mMovies;
 
