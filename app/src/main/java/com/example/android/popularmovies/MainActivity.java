@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.*;
@@ -16,7 +15,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,15 +24,13 @@ import android.widget.TextView;
 
 import com.example.android.popularmovies.MoviePosterAdapter.MoviePosterAdapterOnClickHandler;
 import com.example.android.popularmovies.data.FavoritesContract;
-import com.example.android.popularmovies.utilities.MovieJsonUtils;
-import com.example.android.popularmovies.utilities.NetworkUtils;
+import com.example.android.popularmovies.utilities.AsyncTaskLoader_MovieData;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MoviePosterAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<String[]> {
+        LoaderManager.LoaderCallbacks<List<Movie>> {
 
     private RecyclerView mRecyclerView;
     private TextView mTextViewErrorDisplay;
@@ -170,28 +166,28 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
-    /**
+/*    *//**
      * AsyncTask Loader for loading network JSON movie data
      * @param id
      * @param loaderArgs
      * @return
-     */
+     *//*
     @Override
     public Loader<String[]> onCreateLoader(int id, final Bundle loaderArgs) {
         return new android.support.v4.content.AsyncTaskLoader<String[]>(this) {
 
-            /* This String array will hold and help cache our movie data */
+            *//* This String array will hold and help cache our movie data *//*
             String[] mMovieData = null;
 
-            /* This String holds the sort type parameter passed in by the caller */
+            *//* This String holds the sort type parameter passed in by the caller *//*
             String mSortMode = loaderArgs.getString("sortBy");
 
-            /**
+
+            *//**
              * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
-             */
+             *//*
             @Override
             protected void onStartLoading() {
-                Log.d("AsyncTaskLoader: ", "start loading");
                 if (mMovieData != null){
                     deliverResult(mMovieData);
                 }
@@ -201,24 +197,21 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 }
             }
 
-            /**
+            *//**
              * This is the method of the AsyncTaskLoader that will load and parse the JSON data
              * from themoviedb.org in the background.
              *
              * @return Movie data from themoviedb.org as an array of Strings.
              *         null if an error occurs
-             */
+             *//*
             @Override
             public String[] loadInBackground() {
-                Log.d("AsyncTaskLoader: ", "load in background");
-                URL movieRequestUrl = NetworkUtils.buildUrl(mSortMode);
-                Log.d("AsyncTaskLoader: ", "mSortMode = " + mSortMode);
+                URL movieRequestUrl = NetworkUtils.buildMovieUrl(mSortMode);
                 try {
                     String jsonMovieResponse = NetworkUtils
                             .getResponseFromHttpUrl(movieRequestUrl);
                     String[] simpleJsonMovieData = MovieJsonUtils
                             .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
-                    Log.d("AsyncTaskLoader: ", "simpleJSON = " + simpleJsonMovieData);
                     return simpleJsonMovieData;
 
                 } catch (Exception e) {
@@ -227,25 +220,23 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 }
             }
 
-            /**
+            *//**
              * Sends the result of the load to the registered listener.
              *
              * @param data The result of the load
-             */
+             *//*
             public void deliverResult(String[] data) {
                 mMovieData = data;
-                Log.d("AsyncTaskLoader: ", "result delivered");
                 super.deliverResult(data);
             }
         };
+        return null; //TODO delete, placeholder
     }
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
-        Log.d("AsyncTaskLoader: ", "made it here");
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         if (data != null){
-            Log.d("AsyncTaskLoader: ", "and here");
             showMovieDataView();
             mPosterAdapter.setmMovieData(data);
 
@@ -257,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     @Override
     public void onLoaderReset(Loader<String[]> loader) {
 
-    }
+    }*/
 
     /**
      * Check if device has an active connection to the internet
@@ -305,5 +296,21 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.pref_key_sort), sortMode);
         editor.commit();
+    }
+
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
+        String mSortMode = args.getString("sortBy");
+        return new AsyncTaskLoader_MovieData(this, mSortMode);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+
     }
 }

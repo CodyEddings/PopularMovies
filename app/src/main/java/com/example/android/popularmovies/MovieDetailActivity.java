@@ -9,10 +9,13 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.data.FavoritesContract;
@@ -27,19 +30,14 @@ public class MovieDetailActivity extends AppCompatActivity {
     private String size = "w500";
     private String rawMovieData, plot, title, rating, releaseDate;
 
+    private ProgressBar mPBTrailerLoad;
     private TextView mTitle, mPlot, mRating, mRelease;
+    private TrailerAdapter mTrailerAdapter;
+    private RecyclerView mRecyclerView;
     private ImageButton mFavorited;
     private ImageView mPoster;
     private String movieId;
     private boolean favorited = false;
-
-    public static final String[] MOVIE_FAVORITE_PROJECTION = {
-            FavoritesContract.FavoritesEntry.MOVIE_TITLE
-    };
-
-    public static final int INDEX_MOVIE_TITLE = 0;
-
-    public static final int ID_FAVORITE_LOADER = 3548;
 
     private Uri mUri;
 
@@ -54,6 +52,15 @@ public class MovieDetailActivity extends AppCompatActivity {
         mPlot = (TextView) findViewById(R.id.tv_plot_summary);
         mPoster = (ImageView) findViewById(R.id.iv_movie_poster);
         mFavorited = (ImageButton) findViewById(R.id.ib_favorite);
+        mPBTrailerLoad = (ProgressBar) findViewById(R.id.pb_trailer_loading_indicator);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_trailers);
+
+        int numColumns = 1;
+        GridLayoutManager layoutManager = new GridLayoutManager(this,numColumns);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        mTrailerAdapter = new TrailerAdapter();
+        mRecyclerView.setAdapter(mTrailerAdapter);
 
         Intent intentThatStartedThisActivity = getIntent();
 
@@ -65,6 +72,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 String posterPath = basePosterURL+size+parts[0];
                 Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
 
+                //TODO: fix plot hyphen problem
                 plot = parts[parts.length-7];
                 rating = parts[parts.length-2]+"/10";
                 title = parts[parts.length-3];
@@ -150,6 +158,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                 mSelectionClause,
                 mSelectionArgs
         );
+    }
+
+    private void fetchTrailers(){
+
     }
 
     /**

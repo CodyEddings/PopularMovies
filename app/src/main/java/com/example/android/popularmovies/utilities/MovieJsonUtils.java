@@ -3,11 +3,15 @@ package com.example.android.popularmovies.utilities;
 import android.content.ContentValues;
 import android.content.Context;
 
+import com.example.android.popularmovies.Movie;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Cody on 3/21/2017.
@@ -29,7 +33,7 @@ public class MovieJsonUtils {
      *
      * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static String[] getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
+    public static List<Movie> getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
             throws JSONException {
 
         /* Movie information. Each movie's collective detail info is an element of the parsedMovieData array */
@@ -43,8 +47,10 @@ public class MovieJsonUtils {
 
         final String OWM_MESSAGE_CODE = "cod";
 
-        /* String array to hold each day's weather String */
-        String[] parsedMovieData = null;
+        /* String array to hold each movie's detail information */
+        //String[] parsedMovieData = null; //TODO: delete
+        List<Movie> parsedMovieData = null;
+
 
         JSONObject movieJSON = new JSONObject(movieJsonStr);
 
@@ -68,7 +74,8 @@ public class MovieJsonUtils {
         //parent array for movie results
         JSONArray movieArray = movieJSON.getJSONArray(OWM_RESULTS);
 
-        parsedMovieData = new String[movieArray.length()];
+        //parsedMovieData = new String[movieArray.length()]; //TODO: delete
+        parsedMovieData = new ArrayList<>();
 
         for (int i = 0; i < movieArray.length(); i++) {
             String releaseDate;
@@ -88,8 +95,10 @@ public class MovieJsonUtils {
             rating = movieData.getString(OWM_RATING);
             id = movieData.getString(OWM_ID);
 
-            parsedMovieData[i] = posterPath + " - " + plot + " - " + releaseDate
-                    + " - " + title + " - " + rating + " - " + id;
+            parsedMovieData.add(new Movie(releaseDate, plot, posterPath, title, rating, id));
+
+/*            parsedMovieData[i] = posterPath + " - " + plot + " - " + releaseDate
+                    + " - " + title + " - " + rating + " - " + id;*/
         }
 
         return parsedMovieData;

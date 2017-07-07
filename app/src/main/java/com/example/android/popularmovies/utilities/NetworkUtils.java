@@ -33,7 +33,7 @@ public final class NetworkUtils {
      * Builds the URL used to talk to the movie server
      * @return The URL to use to query the movie server.
      */
-    public static URL buildUrl(String endPoint) {
+    public static URL buildMovieUrl(String endPoint) {
         String QUERY_RAW_URL;
         QUERY_RAW_URL = QUERY_BASE_URL + endPoint + "?api_key=" + API_KEY;
         Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
@@ -47,24 +47,25 @@ public final class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
-        Log.d(TAG, "Built URI " + url);
-
         return url;
     }
 
-    /**
-     * Builds the URL used to talk to the weather server using latitude and longitude of a
-     * location.
-     *
-     * @param lat The latitude of the location
-     * @param lon The longitude of the location
-     * @return The Url to use to query the weather server.
-     */
-    public static URL buildUrl(Double lat, Double lon) {
-        /** This will be implemented in a future lesson **/
-        return null;
+    public static URL buildTrailerUrl(String endPoint, String id){
+        String QUERY_RAW_URL;
+        QUERY_RAW_URL = QUERY_BASE_URL + id + "/" + endPoint + "?api_key=" + API_KEY;
+        Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
+                .appendQueryParameter(LANGUAGE_PARAM, "en-US")
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
+
 
     /**
      * This method returns the entire result from the HTTP response.
