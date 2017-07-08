@@ -1,8 +1,5 @@
 package com.example.android.popularmovies.utilities;
 
-import android.content.ContentValues;
-import android.content.Context;
-
 import com.example.android.popularmovies.Movie;
 
 import org.json.JSONArray;
@@ -30,7 +27,7 @@ public class JsonUtils {
      *
      * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static List<Movie> getMoviesFromJSON(Context context, String movieJsonStr)
+    public static List<Movie> getMoviesFromJSON(String movieJsonStr)
             throws JSONException {
 
         /* Movie information. Each movie's collective detail info is an element of the parsedMovieData array */
@@ -96,7 +93,33 @@ public class JsonUtils {
         return parsedMovieData;
     }
 
-    public static List<String> getTrailersFromJSON(Context context, String trailerJsonStr){
-        return null; //TODO: finish
+    public static List<String> getTrailersFromJSON(String trailerJsonStr){
+        List<String> youtubeKeys = null;
+        final String OWM_RESULTS = "results";
+        final String OWM_TRAILER = "Trailer";
+        final String OWM_TYPE = "type";
+        final String OWM_KEY = "key";
+
+        try{
+            JSONObject trailerJSON = new JSONObject(trailerJsonStr);
+            JSONArray jsonResults = null;
+            if (trailerJSON.has(OWM_RESULTS)) {
+                jsonResults = trailerJSON.getJSONArray(OWM_RESULTS);
+            }
+            else {
+                return youtubeKeys;
+            }
+            for (int i = 0; i < jsonResults.length(); i++) {
+                JSONObject trailer = jsonResults.getJSONObject(i);
+                String type = trailer.getString(OWM_TYPE);
+                if (type.equals(OWM_TRAILER)) {
+                    String youtubeKey = trailer.getString(OWM_KEY);
+                    youtubeKeys.add(youtubeKey);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return youtubeKeys;
     }
 }

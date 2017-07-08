@@ -10,13 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 /**
  * Created by Cody on 7/6/2017.
  */
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
     private TextView mTrailerName;
-    private String[] mTrailerYoutubeID;
+    private List<String> mTrailerYoutubeID;
     private Context mContext;
 
     /**
@@ -66,6 +68,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
         if (mTrailerYoutubeID == null ) {
             return 0;
         }
-        return mTrailerYoutubeID.length;    //return total number of trailers we have data for
+        return mTrailerYoutubeID.size();    //return total number of trailers we have data for
+    }
+
+    public void setTrailerData(List<String> data) {
+        mTrailerYoutubeID = data;
+        notifyDataSetChanged();
     }
 }

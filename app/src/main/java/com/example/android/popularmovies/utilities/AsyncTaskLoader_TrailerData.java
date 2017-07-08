@@ -1,7 +1,7 @@
 package com.example.android.popularmovies.utilities;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.support.v4.content.AsyncTaskLoader;
 
 import java.net.URL;
 import java.util.List;
@@ -11,24 +11,24 @@ import java.util.List;
  */
 
 public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
-    private String mApiTrailerEndpoint, mTrailerID;
-    private List<String> mStrings;
+    private String mApiTrailerEndpoint, mMovieID;
+    private List<String> mTrailers;
 
     public AsyncTaskLoader_TrailerData(Context context, String apiTrailerEndpoint,
                                        String trailerID) {
         super(context);
         mApiTrailerEndpoint = apiTrailerEndpoint;
-        mTrailerID = trailerID;
+        mMovieID = trailerID;
     }
 
     @Override
     public List<String> loadInBackground() {
-        URL trailerRequestUrl = NetworkUtils.buildTrailerUrl(mApiTrailerEndpoint, mTrailerID);
+        URL trailerRequestUrl = NetworkUtils.buildTrailerUrl(mApiTrailerEndpoint, mMovieID);
         try {
             String jsonTrailerResponse = NetworkUtils
                     .getResponseFromHttpUrl(trailerRequestUrl);
             List<String> jsonTrailerData = JsonUtils
-                    .getTrailersFromJSON(getContext(), jsonTrailerResponse);
+                    .getTrailersFromJSON(jsonTrailerResponse);
             return jsonTrailerData;
 
         } catch (Exception e) {
@@ -37,5 +37,58 @@ public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
         }
     }
 
-    //TODO: finish
+    @Override
+    public void deliverResult(List<String> trailerData){
+        if (isReset()){
+            // The Loader has been reset; ignore the result and invalidate the data.
+            if (trailerData != null){
+                return;
+            }
+        }
+
+        // Hold a reference to the old data so it doesn't get garbage collected.
+        // It must be protected the new data has been delivered.
+        List<String> previousTrailers = mTrailers;
+        mTrailers = trailerData;
+
+        if (isStarted()){
+            // If the Loader is in a started state, have the superclass deliver the
+            // results to the client.
+            super.deliverResult(trailerData);
+        }
+    }
+
+    @Override
+    protected void onStartLoading(){
+        if (mTrailers != null){
+            deliverResult(mTrailers);
+        }
+        else{
+            forceLoad();
+        }
+    }
+
+    @Override
+    protected void onStopLoading(){
+        cancelLoad();
+    }
+
+    @Override
+    protected void onReset(){
+        onStopLoading();
+
+        if (mTrailers != null){
+            mTrailers = null;
+        }
+    }
+
+    @Override
+    public void onCanceled(List<String> trailers){
+        super.onCanceled(trailers);
+    }
+
+    @Override
+    public void forceLoad(){
+        super.forceLoad();
+    }
 }

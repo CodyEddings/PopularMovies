@@ -88,11 +88,9 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     @Override
     public void onClick(Movie singleMovieData) {
-        //TODO: fix intent problem
         Class destinationClass = MovieDetailActivity.class;
         Context context = this;
         Intent movieDetailIntent = new Intent(context, destinationClass);
-        //movieDetailIntent.putExtra(Intent.EXTRA_TEXT, singleMovieData);
         movieDetailIntent.putExtra("movie", Parcels.wrap(singleMovieData));
         startActivity(movieDetailIntent);
     }
@@ -170,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 mMovieData.add(new Movie(release, plot, posterPath, title, rating, id));
             }
 
-            mPosterAdapter.setmMovieData(mMovieData);
+            mPosterAdapter.setMovieData(mMovieData);
         }
     }
 
@@ -235,6 +233,12 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         editor.commit();
     }
 
+    /**
+     *
+     *
+     *          Loader Callback methods for MovieData AsyncTask Loader
+     *
+     */
     @Override
     public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
         String mSortMode = args.getString("sortBy");
@@ -246,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         if (data != null){
             showMovieDataView();
-            mPosterAdapter.setmMovieData(data);
+            mPosterAdapter.setMovieData(data);
 
         } else{
             showErrorMessageView();

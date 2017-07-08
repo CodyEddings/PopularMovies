@@ -2,7 +2,8 @@
     <string name="app_name">Popular Movies</string>
 
     <!--Error message for network data fetch-->
-    <string name="load_error">Couldn\'t load movies. Check network connection.</string>
+    <string name="movie_load_error">Couldn\'t load movies. Check network connection.</string>
+    <string name="trailer_load_error">Couldn\'t load trailers. Check network connection.</string>
 
     <!--Menu item text: sort mode-->
     <string name="sort_popularity">Most popular</string>

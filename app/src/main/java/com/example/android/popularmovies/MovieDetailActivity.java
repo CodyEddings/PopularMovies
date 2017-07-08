@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,27 +21,33 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.data.FavoritesContract;
+import com.example.android.popularmovies.utilities.AsyncTaskLoader_TrailerData;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
+
+import java.util.List;
 
 /**
  * Created by Cody on 3/26/2017.
  */
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<List<String>> {
     private String basePosterURL = "http://image.tmdb.org/t/p/";
     private String size = "w500";
     private String posterPath, plot, title, rating, releaseDate, movieId;;
     private Movie movie;
 
     private ProgressBar mPBTrailerLoad;
-    private TextView mTitle, mPlot, mRating, mRelease;
+    private TextView mTitle, mPlot, mRating, mRelease, mTrailerLoadFailure;
     private TrailerAdapter mTrailerAdapter;
     private RecyclerView mRecyclerView;
     private ImageButton mFavorited;
     private ImageView mPoster;
     private boolean favorited = false;
+
+    private static final int TRAILER_LOADER_ID = 8008;
 
     private Uri mUri;
 
@@ -56,6 +64,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mFavorited = (ImageButton) findViewById(R.id.ib_favorite);
         mPBTrailerLoad = (ProgressBar) findViewById(R.id.pb_trailer_loading_indicator);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_trailers);
+        mTrailerLoadFailure = (TextView) findViewById(R.id.tv_trailer_error_message_display);
 
         int numColumns = 1;
         GridLayoutManager layoutManager = new GridLayoutManager(this,numColumns);
@@ -95,7 +104,17 @@ public class MovieDetailActivity extends AppCompatActivity {
                     }
                 }
             });
+
+            loadTrailers(movieId);
         }
+    }
+
+    private void loadTrailers(String id){
+        Bundle loaderParams = new Bundle();
+        loaderParams.putString("movieID", id);
+
+        showTrailerView();
+        getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, loaderParams, this);
     }
 
     private void checkFavorited(){
@@ -171,8 +190,16 @@ public class MovieDetailActivity extends AppCompatActivity {
         );
     }
 
-    private void fetchTrailers(){
+    //Display movie's trailers
+    private void showTrailerView(){
+        mTrailerLoadFailure.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
 
+    //Trailers didn't load. Display error message
+    private void showErrorMessageView(){
+        mTrailerLoadFailure.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -188,5 +215,34 @@ public class MovieDetailActivity extends AppCompatActivity {
         a.recycle();
 
         return color;
+    }
+
+
+    /**
+     *
+     *
+     *          Loader Callback methods for TrailerData AsyncTask Loader
+     *
+     */
+    @Override
+    public Loader<List<String>> onCreateLoader(int id, Bundle args) {
+        String trailerEndpoint = "videos";
+        String filmID = args.getString("movieID");
+        return new AsyncTaskLoader_TrailerData(this, trailerEndpoint, filmID);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
+        mPBTrailerLoad.setVisibility(View.INVISIBLE);
+        if (data != null){
+            showTrailerView();
+            mTrailerAdapter.setTrailerData(data);
+        }else {
+            showErrorMessageView();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<String>> loader) {
     }
 }

@@ -119,7 +119,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
      *
      * @param data The new movie data to be displayed.
      */
-    public void setmMovieData(List<Movie> data) {
+    public void setMovieData(List<Movie> data) {
         mMovieData = data;
         notifyDataSetChanged();
     }
