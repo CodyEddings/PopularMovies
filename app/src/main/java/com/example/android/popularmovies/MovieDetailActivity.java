@@ -21,6 +21,8 @@ import android.widget.TextView;
 import com.example.android.popularmovies.data.FavoritesContract;
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
 /**
  * Created by Cody on 3/26/2017.
  */
@@ -28,7 +30,8 @@ import com.squareup.picasso.Picasso;
 public class MovieDetailActivity extends AppCompatActivity {
     private String basePosterURL = "http://image.tmdb.org/t/p/";
     private String size = "w500";
-    private String rawMovieData, plot, title, rating, releaseDate;
+    private String posterPath, plot, title, rating, releaseDate, movieId;;
+    private Movie movie;
 
     private ProgressBar mPBTrailerLoad;
     private TextView mTitle, mPlot, mRating, mRelease;
@@ -36,7 +39,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private ImageButton mFavorited;
     private ImageView mPoster;
-    private String movieId;
     private boolean favorited = false;
 
     private Uri mUri;
@@ -65,35 +67,30 @@ public class MovieDetailActivity extends AppCompatActivity {
         Intent intentThatStartedThisActivity = getIntent();
 
         if (intentThatStartedThisActivity != null) {
-            if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-                rawMovieData = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT);
-                String parts[] = rawMovieData.split("-");
+            movie = Parcels.unwrap(getIntent().getParcelableExtra("movie"));
 
-                String posterPath = basePosterURL+size+parts[0];
-                Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
+            plot = movie.plot;
+            rating = movie.rating + "/10";
+            title = movie.title;
+            releaseDate = movie.releaseDate;
+            movieId = movie.id;
+            posterPath = basePosterURL + size + movie.posterPath;
 
-                //TODO: refactor to accept Movie data instead of parsed string
-                plot = parts[parts.length-7];
-                rating = parts[parts.length-2]+"/10";
-                title = parts[parts.length-3];
-                releaseDate = parts[parts.length-6];
-                movieId = parts[parts.length-1];
+            //load views with their respective movie data
+            Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
+            mPlot.setText(plot);
+            mRating.setText(rating);
+            mTitle.setText(title);
+            mRelease.setText(releaseDate);
 
-                mPlot.setText(plot);
-                mRating.setText(rating);
-                mTitle.setText(title);
-                mRelease.setText(releaseDate);
-
-                checkFavorited();
-            }
+            checkFavorited();
 
             mFavorited.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (favorited){
+                    if (favorited) {
                         clearFavorite();
-                    }
-                    else {
+                    } else {
                         setFavorite(false);
                     }
                 }
@@ -107,7 +104,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         String[] projection = {
                 FavoritesContract.FavoritesEntry._ID,
                 FavoritesContract.FavoritesEntry.MOVIE_TITLE,
-                FavoritesContract.FavoritesEntry.MOVIE_DATA
+                FavoritesContract.FavoritesEntry.MOVIE_ID,
+                FavoritesContract.FavoritesEntry.MOVIE_PLOT,
+                FavoritesContract.FavoritesEntry.MOVIE_POSTER_PATH,
+                FavoritesContract.FavoritesEntry.MOVIE_RELEASE_DATE,
+                FavoritesContract.FavoritesEntry.MOVIE_RATING,
         };
         String[] args = {title};
 
@@ -130,12 +131,22 @@ public class MovieDetailActivity extends AppCompatActivity {
         mFavorited.setColorFilter(fetchAccentColor());
 
         if (!alreadySet) {
-            //call insert method for content provider to add a new row to SQL table for current
-            // favorited movie
+            /*call insert method for content provider to add a new row to SQL table for current
+            favorited movie. ContentValues object stores all movie details for insertion into database */
+
+            //Only save the endpoint of the poster path. Allows greater flexibility in changing other
+            //parts of poster URL if desired, such as poster size.
+            String[] posterPathParts = posterPath.split("/");
+            String posterPathEndPoint = "/" + posterPathParts[posterPathParts.length-1];
+
             ContentValues mNewValues = new ContentValues();
-            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_TITLE, title);    //save movie title
-            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_ID, movieId);     //save movie id
-            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_DATA, rawMovieData);  //save movie data string
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_TITLE, title);
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_ID, movieId);
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_PLOT, plot);
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_POSTER_PATH, posterPathEndPoint);
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_RELEASE_DATE, releaseDate);
+            mNewValues.put(FavoritesContract.FavoritesEntry.MOVIE_RATING, rating);
+
             mUri = getContentResolver().insert(
                     FavoritesContract.FavoritesEntry.CONTENT_URI,
                     mNewValues

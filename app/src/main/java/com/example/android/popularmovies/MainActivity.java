@@ -26,6 +26,8 @@ import com.example.android.popularmovies.MoviePosterAdapter.MoviePosterAdapterOn
 import com.example.android.popularmovies.data.FavoritesContract;
 import com.example.android.popularmovies.utilities.AsyncTaskLoader_MovieData;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,11 +89,12 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     @Override
     public void onClick(Movie singleMovieData) {
         //TODO: fix intent problem
-/*        Class destinationClass = MovieDetailActivity.class;
+        Class destinationClass = MovieDetailActivity.class;
         Context context = this;
         Intent movieDetailIntent = new Intent(context, destinationClass);
-        movieDetailIntent.putExtra(Intent.EXTRA_TEXT, singleMovieData);
-        startActivity(movieDetailIntent);*/
+        //movieDetailIntent.putExtra(Intent.EXTRA_TEXT, singleMovieData);
+        movieDetailIntent.putExtra("movie", Parcels.wrap(singleMovieData));
+        startActivity(movieDetailIntent);
     }
 
     @Override
@@ -128,11 +131,16 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
      * from SQL table.
      */
     private void sortByFavorites(){
-        List<String> movieData = new ArrayList<>();
+        List<Movie> mMovieData = new ArrayList<>();
 
         ContentResolver mContentResolver = this.getContentResolver();
         String[] projection = {
-                FavoritesContract.FavoritesEntry.MOVIE_DATA
+                FavoritesContract.FavoritesEntry.MOVIE_TITLE,
+                FavoritesContract.FavoritesEntry.MOVIE_ID,
+                FavoritesContract.FavoritesEntry.MOVIE_PLOT,
+                FavoritesContract.FavoritesEntry.MOVIE_RATING,
+                FavoritesContract.FavoritesEntry.MOVIE_RELEASE_DATE,
+                FavoritesContract.FavoritesEntry.MOVIE_POSTER_PATH,
         };
 
         Cursor cursor = mContentResolver.query(
@@ -144,20 +152,26 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         );
 
         if (cursor != null){
-            int columnIndex = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_DATA);
+            int titleColumn = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_TITLE);
+            int idColumn = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_ID);
+            int plotColumn= cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_PLOT);
+            int posterColumn = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_POSTER_PATH);
+            int ratingColumn = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_RATING);
+            int releaseColumn = cursor.getColumnIndex(FavoritesContract.FavoritesEntry.MOVIE_RELEASE_DATE);
+
             while (cursor.moveToNext()){
-                movieData.add(cursor.getString(columnIndex));
+                String release = cursor.getString(releaseColumn);
+                String plot = cursor.getString(plotColumn);
+                String posterPath = cursor.getString(posterColumn);
+                String title = cursor.getString(titleColumn);
+                String rating = cursor.getString(ratingColumn);
+                String id = cursor.getString(idColumn);
+
+                mMovieData.add(new Movie(release, plot, posterPath, title, rating, id));
             }
 
-            //TODO: store all movie details into SQL to avoid having to parse the details here when
-            //TODO: you create new Movie objects for each favorite
-            List<Movie> mMovieData = new ArrayList<>();
-            for (int i = 0; i < movieData.size(); i++){
-                //TODO: make new movie objects
-            }
             mPosterAdapter.setmMovieData(mMovieData);
         }
-
     }
 
     //Show grid of movie posters
@@ -172,90 +186,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mTextViewErrorDisplay.setVisibility(View.VISIBLE);
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
-
-/*    *//**
-     * AsyncTask Loader for loading network JSON movie data
-     * @param id
-     * @param loaderArgs
-     * @return
-     *//*
-    @Override
-    public Loader<String[]> onCreateLoader(int id, final Bundle loaderArgs) {
-        return new android.support.v4.content.AsyncTaskLoader<String[]>(this) {
-
-            *//* This String array will hold and help cache our movie data *//*
-            String[] mMovieData = null;
-
-            *//* This String holds the sort type parameter passed in by the caller *//*
-            String mSortMode = loaderArgs.getString("sortBy");
-
-
-            *//**
-             * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
-             *//*
-            @Override
-            protected void onStartLoading() {
-                if (mMovieData != null){
-                    deliverResult(mMovieData);
-                }
-                else {
-                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                    forceLoad();
-                }
-            }
-
-            *//**
-             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
-             * from themoviedb.org in the background.
-             *
-             * @return Movie data from themoviedb.org as an array of Strings.
-             *         null if an error occurs
-             *//*
-            @Override
-            public String[] loadInBackground() {
-                URL movieRequestUrl = NetworkUtils.buildMovieUrl(mSortMode);
-                try {
-                    String jsonMovieResponse = NetworkUtils
-                            .getResponseFromHttpUrl(movieRequestUrl);
-                    String[] simpleJsonMovieData = MovieJsonUtils
-                            .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
-                    return simpleJsonMovieData;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            *//**
-             * Sends the result of the load to the registered listener.
-             *
-             * @param data The result of the load
-             *//*
-            public void deliverResult(String[] data) {
-                mMovieData = data;
-                super.deliverResult(data);
-            }
-        };
-        return null; //TODO delete, placeholder
-    }
-
-    @Override
-    public void onLoadFinished(Loader<String[]> loader, String[] data) {
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        if (data != null){
-            showMovieDataView();
-            mPosterAdapter.setmMovieData(data);
-
-        } else{
-            showErrorMessageView();
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<String[]> loader) {
-
-    }*/
 
     /**
      * Check if device has an active connection to the internet
