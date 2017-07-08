@@ -31,7 +31,7 @@ public class AsyncTaskLoader_MovieData extends AsyncTaskLoader<List<Movie>> {
             String jsonMovieResponse = NetworkUtils
                     .getResponseFromHttpUrl(movieRequestUrl);
             List<Movie> simpleJsonMovieData = MovieJsonUtils
-                    .getSimpleMovieStringsFromJson(getContext(), jsonMovieResponse);
+                    .getMoviesFromJSON(getContext(), jsonMovieResponse);
             return simpleJsonMovieData;
 
         } catch (Exception e) {

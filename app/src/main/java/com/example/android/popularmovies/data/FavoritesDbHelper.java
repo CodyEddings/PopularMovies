@@ -17,7 +17,7 @@ import com.example.android.popularmovies.data.FavoritesContract.FavoritesEntry;
 public class FavoritesDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "favorites.db";
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public FavoritesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,10 +39,13 @@ public class FavoritesDbHelper extends SQLiteOpenHelper {
                  * FavoritesEntry implements the interface, "BaseColumns", which does have a field
                  * named "_ID". We use that here to designate our table's primary key.
                  */
-                        FavoritesEntry._ID              + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        FavoritesEntry.MOVIE_TITLE      + " STRING NOT NULL, "                   +
-                        FavoritesEntry.MOVIE_ID         + " INTEGER NOT NULL, "                  +
-                        FavoritesEntry.MOVIE_DATA       + " INTEGER NOT NULL, "                  +
+                        FavoritesEntry._ID                  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        FavoritesEntry.MOVIE_TITLE          + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_ID             + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_PLOT           + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_RATING         + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_RELEASE_DATE   + " STRING NOT NULL, "                   +
+                        FavoritesEntry.MOVIE_POSTER_PATH    + " STRING NOT NULL, "                   +
 
                 /*
                  * To ensure this table can only contain one weather entry per date, we declare

@@ -20,12 +20,9 @@ import java.util.List;
 public class MovieJsonUtils {
 
     /**
-     * This method parses JSON from a web response and returns an array of Strings
-     * describing the weather over various days from the forecast.
+     * This method parses JSON from a web response and returns an array of Movies
+     * describing the details of queried movies, with fields such as plot, rating, title, etc.
      * <p/>
-     * Later on, we'll be parsing the JSON into structured data within the
-     * getFullWeatherDataFromJson function, leveraging the data we have stored in the JSON. For
-     * now, we just convert the JSON into human-readable strings.
      *
      * @param movieJsonStr JSON response from server
      *
@@ -33,7 +30,7 @@ public class MovieJsonUtils {
      *
      * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static List<Movie> getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
+    public static List<Movie> getMoviesFromJSON(Context context, String movieJsonStr)
             throws JSONException {
 
         /* Movie information. Each movie's collective detail info is an element of the parsedMovieData array */
@@ -47,8 +44,7 @@ public class MovieJsonUtils {
 
         final String OWM_MESSAGE_CODE = "cod";
 
-        /* String array to hold each movie's detail information */
-        //String[] parsedMovieData = null; //TODO: delete
+        /* Array of Movie objects to hold each movie's detail information */
         List<Movie> parsedMovieData = null;
 
 
@@ -74,7 +70,6 @@ public class MovieJsonUtils {
         //parent array for movie results
         JSONArray movieArray = movieJSON.getJSONArray(OWM_RESULTS);
 
-        //parsedMovieData = new String[movieArray.length()]; //TODO: delete
         parsedMovieData = new ArrayList<>();
 
         for (int i = 0; i < movieArray.length(); i++) {
@@ -96,9 +91,6 @@ public class MovieJsonUtils {
             id = movieData.getString(OWM_ID);
 
             parsedMovieData.add(new Movie(releaseDate, plot, posterPath, title, rating, id));
-
-/*            parsedMovieData[i] = posterPath + " - " + plot + " - " + releaseDate
-                    + " - " + title + " - " + rating + " - " + id;*/
         }
 
         return parsedMovieData;

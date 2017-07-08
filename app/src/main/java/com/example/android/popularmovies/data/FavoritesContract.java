@@ -51,7 +51,12 @@ public class FavoritesContract {
         /* ID of the movie that has been favorited*/
         public static final String MOVIE_ID = "id";
 
-        /* Raw movie data JSON string*/
-        public static final String MOVIE_DATA = "raw_data";
+        public static final String MOVIE_RATING = "rating";
+
+        public static final String MOVIE_PLOT = "plot";
+
+        public static final String MOVIE_RELEASE_DATE = "release_date";
+
+        public static final String MOVIE_POSTER_PATH = "poster_path";
     }
 }
