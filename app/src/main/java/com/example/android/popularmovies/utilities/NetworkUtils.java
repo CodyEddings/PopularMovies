@@ -5,7 +5,6 @@ package com.example.android.popularmovies.utilities;
  */
 
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,8 @@ import java.util.Scanner;
 public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-    private static final String API_KEY = "22d22a9d610ad3f3ccf423152f7dc18d";
+    private static final String THEMOVIEDB_API_KEY = "22d22a9d610ad3f3ccf423152f7dc18d";
+    private static final String YOUTUBE_API_KEY = "AIzaSyCVVEBfnvvFd4QmF2TieDGW7J9yIQHKY_4";
     private static final String QUERY_BASE_URL = "https://api.themoviedb.org/3/movie/";
 
     /* The format we want our API to return */
@@ -35,7 +35,7 @@ public final class NetworkUtils {
      */
     public static URL buildMovieUrl(String endPoint) {
         String QUERY_RAW_URL;
-        QUERY_RAW_URL = QUERY_BASE_URL + endPoint + "?api_key=" + API_KEY;
+        QUERY_RAW_URL = QUERY_BASE_URL + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
         Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
                 .appendQueryParameter(ADULT_PARAM, "false")
                 .appendQueryParameter(LANGUAGE_PARAM, "en-US")
@@ -52,7 +52,7 @@ public final class NetworkUtils {
 
     public static URL buildTrailerUrl(String endPoint, String id){
         String QUERY_RAW_URL;
-        QUERY_RAW_URL = QUERY_BASE_URL + id + "/" + endPoint + "?api_key=" + API_KEY;
+        QUERY_RAW_URL = QUERY_BASE_URL + id + "/" + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
         Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
                 .appendQueryParameter(LANGUAGE_PARAM, "en-US")
                 .build();

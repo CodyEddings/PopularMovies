@@ -12,7 +12,7 @@ import java.util.List;
 
 public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
     private String mApiTrailerEndpoint, mMovieID;
-    private List<String> mTrailers;
+    private List<String> mYoutubeTrailerIDs;
 
     public AsyncTaskLoader_TrailerData(Context context, String apiTrailerEndpoint,
                                        String trailerID) {
@@ -27,9 +27,9 @@ public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
         try {
             String jsonTrailerResponse = NetworkUtils
                     .getResponseFromHttpUrl(trailerRequestUrl);
-            List<String> jsonTrailerData = JsonUtils
+            List<String> jsonYoutubeTrailerKeys = JsonUtils
                     .getTrailersFromJSON(jsonTrailerResponse);
-            return jsonTrailerData;
+            return jsonYoutubeTrailerKeys;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,20 +48,20 @@ public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
 
         // Hold a reference to the old data so it doesn't get garbage collected.
         // It must be protected the new data has been delivered.
-        List<String> previousTrailers = mTrailers;
-        mTrailers = trailerData;
+        List<String> previousTrailers = mYoutubeTrailerIDs;
+        mYoutubeTrailerIDs = trailerData;
 
         if (isStarted()){
             // If the Loader is in a started state, have the superclass deliver the
             // results to the client.
             super.deliverResult(trailerData);
         }
-    }
+     }
 
     @Override
     protected void onStartLoading(){
-        if (mTrailers != null){
-            deliverResult(mTrailers);
+        if (mYoutubeTrailerIDs != null){
+            deliverResult(mYoutubeTrailerIDs);
         }
         else{
             forceLoad();
@@ -77,8 +77,8 @@ public class AsyncTaskLoader_TrailerData extends AsyncTaskLoader<List<String>> {
     protected void onReset(){
         onStopLoading();
 
-        if (mTrailers != null){
-            mTrailers = null;
+        if (mYoutubeTrailerIDs != null){
+            mYoutubeTrailerIDs = null;
         }
     }
 

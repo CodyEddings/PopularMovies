@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
      */
     private void loadMovieData(String sortMode, boolean firstRun){
         if (isOnline()){
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+
             showMovieDataView();
             //new FetchMovieDataTask().execute(sortMode);
 
@@ -113,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
             if (firstRun) {
                 getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, loaderParams, this);
-                firstRun = false;
             }
             else {
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, loaderParams, this);

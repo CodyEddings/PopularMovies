@@ -39,7 +39,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private String posterPath, plot, title, rating, releaseDate, movieId;;
     private Movie movie;
 
-    private ProgressBar mPBTrailerLoad;
+    private ProgressBar mTrailerLoadingProgress;
     private TextView mTitle, mPlot, mRating, mRelease, mTrailerLoadFailure;
     private TrailerAdapter mTrailerAdapter;
     private RecyclerView mRecyclerView;
@@ -62,7 +62,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
         mPlot = (TextView) findViewById(R.id.tv_plot_summary);
         mPoster = (ImageView) findViewById(R.id.iv_movie_poster);
         mFavorited = (ImageButton) findViewById(R.id.ib_favorite);
-        mPBTrailerLoad = (ProgressBar) findViewById(R.id.pb_trailer_loading_indicator);
+        mTrailerLoadingProgress = (ProgressBar) findViewById(R.id.pb_trailer_loading_indicator);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_trailers);
         mTrailerLoadFailure = (TextView) findViewById(R.id.tv_trailer_error_message_display);
 
@@ -110,6 +110,8 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadTrailers(String id){
+        mTrailerLoadingProgress.setVisibility(View.VISIBLE);
+
         Bundle loaderParams = new Bundle();
         loaderParams.putString("movieID", id);
 
@@ -233,7 +235,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
-        mPBTrailerLoad.setVisibility(View.INVISIBLE);
+        mTrailerLoadingProgress.setVisibility(View.INVISIBLE);
         if (data != null){
             showTrailerView();
             mTrailerAdapter.setTrailerData(data);

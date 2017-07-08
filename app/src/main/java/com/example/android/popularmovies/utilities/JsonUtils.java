@@ -94,7 +94,7 @@ public class JsonUtils {
     }
 
     public static List<String> getTrailersFromJSON(String trailerJsonStr){
-        List<String> youtubeKeys = null;
+        List<String> youtubeKeys = new ArrayList<>();
         final String OWM_RESULTS = "results";
         final String OWM_TRAILER = "Trailer";
         final String OWM_TYPE = "type";
