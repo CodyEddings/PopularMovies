@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
@@ -73,14 +74,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReviewLoadingProgress = (ProgressBar) findViewById(R.id.pb_review_loading_indicator);
         mReviewLoadFailure = (TextView) findViewById(R.id.tv_review_error_message_display);
 
-        int numColumns = 1;
-
-        GridLayoutManager trailerLayoutManager = new GridLayoutManager(this, numColumns);
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this);
         mTrailerRecyclerView.setLayoutManager(trailerLayoutManager);
         mTrailerAdapter = new TrailerAdapter();
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
 
-        GridLayoutManager reviewLayoutManager = new GridLayoutManager(this, numColumns);
+        LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
         mTrailerRecyclerView.setLayoutManager(reviewLayoutManager);
         mReviewAdapter = new ReviewAdapter();
         mReviewRecyclerView.setAdapter(mReviewAdapter);
