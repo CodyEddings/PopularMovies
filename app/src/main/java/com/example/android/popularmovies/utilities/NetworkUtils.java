@@ -18,10 +18,9 @@ import java.util.Scanner;
  */
 public final class NetworkUtils {
 
-    private static final String TAG = NetworkUtils.class.getSimpleName();
     private static final String THEMOVIEDB_API_KEY = "22d22a9d610ad3f3ccf423152f7dc18d";
-    private static final String YOUTUBE_API_KEY = "AIzaSyCVVEBfnvvFd4QmF2TieDGW7J9yIQHKY_4";
-    private static final String QUERY_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    private static final String THEMOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
     /* The format we want our API to return */
     private static final String format = "json";
@@ -30,12 +29,13 @@ public final class NetworkUtils {
     final static String LANGUAGE_PARAM = "language";
 
     /**
-     * Builds the URL used to talk to the movie server
+     * Builds URL used to get details for a movie from themoviedb.org
+     *
      * @return The URL to use to query the movie server.
      */
     public static URL buildMovieUrl(String endPoint) {
         String QUERY_RAW_URL;
-        QUERY_RAW_URL = QUERY_BASE_URL + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
+        QUERY_RAW_URL = THEMOVIEDB_BASE_URL + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
         Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
                 .appendQueryParameter(ADULT_PARAM, "false")
                 .appendQueryParameter(LANGUAGE_PARAM, "en-US")
@@ -50,9 +50,16 @@ public final class NetworkUtils {
         return url;
     }
 
+    /**
+     * Builds URL used to get trailers for a movie from themoviedb.org
+     *
+     * @param endPoint
+     * @param id
+     * @return
+     */
     public static URL buildTrailerUrl(String endPoint, String id){
         String QUERY_RAW_URL;
-        QUERY_RAW_URL = QUERY_BASE_URL + id + "/" + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
+        QUERY_RAW_URL = THEMOVIEDB_BASE_URL + id + "/" + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
         Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
                 .appendQueryParameter(LANGUAGE_PARAM, "en-US")
                 .build();
@@ -66,6 +73,32 @@ public final class NetworkUtils {
         return url;
     }
 
+    /**
+     * Builds URL used to get reviews for a movie from themoviedb.org
+     *
+     * @param endPoint
+     * @param id
+     * @return
+     */
+    public static URL buildReviewUrl(String endPoint, String id){
+        String QUERY_RAW_URL;
+        QUERY_RAW_URL = THEMOVIEDB_BASE_URL + id + "/" + endPoint + "?api_key=" + THEMOVIEDB_API_KEY;
+        Uri builtUri = Uri.parse(QUERY_RAW_URL).buildUpon()
+                .appendQueryParameter(LANGUAGE_PARAM, "en-US")
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public static String buildYoutubeURL(String youtubeID) {
+        return YOUTUBE_BASE_URL + youtubeID;
+    }
 
     /**
      * This method returns the entire result from the HTTP response.
