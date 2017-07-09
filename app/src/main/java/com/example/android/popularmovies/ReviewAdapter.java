@@ -48,7 +48,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         holder.mReviewContent.setText(content);
 
         String author = mReviews.get(position).author;
-        String formattedAuthor = "-" + author;
+        String formattedAuthor = "--" + author;
         holder.mReviewAuthor.setText(formattedAuthor);
     }
 

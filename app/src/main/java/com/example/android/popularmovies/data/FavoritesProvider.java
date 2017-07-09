@@ -38,8 +38,7 @@ public class FavoritesProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-        //TODO: making a DbHelper should be deferred until the Content Provider is used, ideally
-            /*
+        /*
          * As noted in the comment above, onCreate is run on the main thread, so performing any
          * lengthy operations will cause lag in your app. Since FavoritesDbHelper's constructor is
          * very lightweight, we are safe to perform that initialization here.

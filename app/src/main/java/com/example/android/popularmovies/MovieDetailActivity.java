@@ -80,7 +80,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
 
         LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
-        mTrailerRecyclerView.setLayoutManager(reviewLayoutManager);
+        mReviewRecyclerView.setLayoutManager(reviewLayoutManager);
         mReviewAdapter = new ReviewAdapter();
         mReviewRecyclerView.setAdapter(mReviewAdapter);
 

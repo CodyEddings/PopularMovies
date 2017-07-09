@@ -211,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         if (id == R.id.sort_popularity) {
-            //TODO: save preference
             setSharedPref("popular");               //save sorting preference
             boolean firstRun = false;
             loadMovieData("popular", firstRun);     //load movie data (popular)
