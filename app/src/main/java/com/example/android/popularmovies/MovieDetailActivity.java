@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.data.FavoritesContract;
+import com.example.android.popularmovies.utilities.AsyncTaskLoader_ReviewData;
 import com.example.android.popularmovies.utilities.AsyncTaskLoader_TrailerData;
 import com.squareup.picasso.Picasso;
 
@@ -32,22 +33,23 @@ import java.util.List;
  * Created by Cody on 3/26/2017.
  */
 
-public class MovieDetailActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<List<String>> {
+public class MovieDetailActivity extends AppCompatActivity {
     private String basePosterURL = "http://image.tmdb.org/t/p/";
     private String size = "w500";
     private String posterPath, plot, title, rating, releaseDate, movieId;;
     private Movie movie;
 
-    private ProgressBar mTrailerLoadingProgress;
-    private TextView mTitle, mPlot, mRating, mRelease, mTrailerLoadFailure;
+    private ProgressBar mTrailerLoadingProgress, mReviewLoadingProgress;
+    private TextView mTitle, mPlot, mRating, mRelease, mTrailerLoadFailure, mReviewLoadFailure;
     private TrailerAdapter mTrailerAdapter;
-    private RecyclerView mRecyclerView;
+    private ReviewAdapter mReviewAdapter;
+    private RecyclerView mTrailerRecyclerView, mReviewRecyclerView;
     private ImageButton mFavorited;
     private ImageView mPoster;
     private boolean favorited = false;
 
     private static final int TRAILER_LOADER_ID = 8008;
+    private static final int REVIEW_LOADER_ID = 7008;
 
     private Uri mUri;
 
@@ -62,16 +64,26 @@ public class MovieDetailActivity extends AppCompatActivity implements
         mPlot = (TextView) findViewById(R.id.tv_plot_summary);
         mPoster = (ImageView) findViewById(R.id.iv_movie_poster);
         mFavorited = (ImageButton) findViewById(R.id.ib_favorite);
+
+        mTrailerRecyclerView = (RecyclerView) findViewById(R.id.rv_trailers);
         mTrailerLoadingProgress = (ProgressBar) findViewById(R.id.pb_trailer_loading_indicator);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_trailers);
         mTrailerLoadFailure = (TextView) findViewById(R.id.tv_trailer_error_message_display);
 
-        int numColumns = 1;
-        GridLayoutManager layoutManager = new GridLayoutManager(this,numColumns);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mReviewRecyclerView = (RecyclerView) findViewById(R.id.rv_reviews);
+        mReviewLoadingProgress = (ProgressBar) findViewById(R.id.pb_review_loading_indicator);
+        mReviewLoadFailure = (TextView) findViewById(R.id.tv_review_error_message_display);
 
+        int numColumns = 1;
+
+        GridLayoutManager trailerLayoutManager = new GridLayoutManager(this, numColumns);
+        mTrailerRecyclerView.setLayoutManager(trailerLayoutManager);
         mTrailerAdapter = new TrailerAdapter();
-        mRecyclerView.setAdapter(mTrailerAdapter);
+        mTrailerRecyclerView.setAdapter(mTrailerAdapter);
+
+        GridLayoutManager reviewLayoutManager = new GridLayoutManager(this, numColumns);
+        mTrailerRecyclerView.setLayoutManager(reviewLayoutManager);
+        mReviewAdapter = new ReviewAdapter();
+        mReviewRecyclerView.setAdapter(mReviewAdapter);
 
         Intent intentThatStartedThisActivity = getIntent();
 
@@ -106,17 +118,28 @@ public class MovieDetailActivity extends AppCompatActivity implements
             });
 
             loadTrailers(movieId);
+            loadReviews(movieId);
         }
     }
 
     private void loadTrailers(String id){
         mTrailerLoadingProgress.setVisibility(View.VISIBLE);
 
-        Bundle loaderParams = new Bundle();
-        loaderParams.putString("movieID", id);
+        Bundle trailerLoaderParams = new Bundle();
+        trailerLoaderParams.putString("movieID", id);
 
         showTrailerView();
-        getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, loaderParams, this);
+        getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, trailerLoaderParams, trailerLoaderListener);
+    }
+
+    private void loadReviews(String id){
+        mReviewLoadingProgress.setVisibility(View.VISIBLE);
+
+        Bundle reviewLoaderParams = new Bundle();
+        reviewLoaderParams.putString("movieID", id);
+
+        showReviewView();
+        getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, reviewLoaderParams, reviewLoaderListener);
     }
 
     private void checkFavorited(){
@@ -195,13 +218,25 @@ public class MovieDetailActivity extends AppCompatActivity implements
     //Display movie's trailers
     private void showTrailerView(){
         mTrailerLoadFailure.setVisibility(View.INVISIBLE);
-        mRecyclerView.setVisibility(View.VISIBLE);
+        mTrailerRecyclerView.setVisibility(View.VISIBLE);
     }
 
     //Trailers didn't load. Display error message
-    private void showErrorMessageView(){
+    private void showTrailerErrorView(){
         mTrailerLoadFailure.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.INVISIBLE);
+        mTrailerRecyclerView.setVisibility(View.INVISIBLE);
+    }
+
+    //Display movie's reviews
+    private void showReviewView(){
+        mReviewLoadFailure.setVisibility(View.INVISIBLE);
+        mReviewRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    //Reviews didn't load. Display error message
+    private void showReviewErrorView(){
+        mReviewLoadFailure.setVisibility(View.VISIBLE);
+        mReviewRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -221,30 +256,62 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
 
     /**
-     *
-     *
-     *          Loader Callback methods for TrailerData AsyncTask Loader
-     *
+     *          Loader Callback methods for TRAILER data AsyncTask Loader. The loader is implemented
+     *          as an anonymous inner class to allow MovieDetailActivity access to more than one
+     *          loader.
      */
-    @Override
-    public Loader<List<String>> onCreateLoader(int id, Bundle args) {
-        String trailerEndpoint = "videos";
-        String filmID = args.getString("movieID");
-        return new AsyncTaskLoader_TrailerData(this, trailerEndpoint, filmID);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
-        mTrailerLoadingProgress.setVisibility(View.INVISIBLE);
-        if (data != null){
-            showTrailerView();
-            mTrailerAdapter.setTrailerData(data);
-        }else {
-            showErrorMessageView();
+    private LoaderManager.LoaderCallbacks<List<String>> trailerLoaderListener
+            = new LoaderManager.LoaderCallbacks<List<String>>() {
+        @Override
+        public Loader<List<String>> onCreateLoader(int id, Bundle args) {
+            String trailersEndpoint = "videos";
+            String filmID = args.getString("movieID");
+            return new AsyncTaskLoader_TrailerData(getBaseContext(), trailersEndpoint, filmID);
         }
-    }
 
-    @Override
-    public void onLoaderReset(Loader<List<String>> loader) {
-    }
+        @Override
+        public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
+            mTrailerLoadingProgress.setVisibility(View.INVISIBLE);
+            if (data != null){
+                showTrailerView();
+                mTrailerAdapter.setTrailerData(data);
+            }else {
+                showTrailerErrorView();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<String>> loader) {
+        }
+    };
+
+    /**
+     *          Loader Callback methods for REVIEW data AsyncTask Loader. The loader is implemented
+     *          as an anonymous inner class to allow MovieDetailActivity access to more than one
+     *          loader.
+     */
+    private LoaderManager.LoaderCallbacks<List<Review>> reviewLoaderListener
+            = new LoaderManager.LoaderCallbacks<List<Review>>() {
+        @Override
+        public Loader<List<Review>> onCreateLoader(int id, Bundle args) {
+            String reviewsEndpoint = "reviews";
+            String filmID = args.getString("movieID");
+            return new AsyncTaskLoader_ReviewData(getBaseContext(), reviewsEndpoint, filmID);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<Review>> loader, List<Review> data) {
+            mReviewLoadingProgress.setVisibility(View.INVISIBLE);
+            if (data != null){
+                showReviewView();
+                mReviewAdapter.setReviewData(data);
+            }else {
+                showReviewErrorView();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<Review>> loader) {
+        }
+    };
 }

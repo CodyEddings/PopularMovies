@@ -2,8 +2,9 @@
     <string name="app_name">Popular Movies</string>
 
     <!--Error message for network data fetch-->
-    <string name="movie_load_error">Couldn\'t load movies. Check network connection.</string>
-    <string name="trailer_load_error">Couldn\'t load trailers. Check network connection.</string>
+    <string name="movie_load_error">Couldn\'t load movies. Check network connection &amp; retry.</string>
+    <string name="trailer_load_error">Couldn\'t load trailers. Check network connection &amp; retry.</string>
+    <string name="review_load_error">Couldn\'t load reviews. Check network connection &amp; retry.</string>
 
     <!--Menu item text: sort mode-->
     <string name="sort_popularity">Most popular</string>
@@ -12,6 +13,7 @@
 
     <!--Movie Detail Screen Text-->
     <string name="trailers">Trailers:</string>
+    <string name="reviews">Reviews:</string>
 
     <!--App's Content Provider Authority-->
     <string name="content_authority">com.example.android.popularmovies</string>

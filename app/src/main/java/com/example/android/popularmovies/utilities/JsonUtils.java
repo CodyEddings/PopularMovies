@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.utilities;
 
 import com.example.android.popularmovies.Movie;
+import com.example.android.popularmovies.Review;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -121,5 +122,35 @@ public class JsonUtils {
             e.printStackTrace();
         }
         return youtubeKeys;
+    }
+
+    public static List<Review> getReviewsFromJSON(String reviewJsonStr){
+        List<Review> reviews = new ArrayList<>();
+        final String OWM_RESULTS = "results";
+        final String OWM_AUTHOR = "author";
+        final String OWM_CONTENT = "content";
+
+        try{
+            JSONObject reviewJSON = new JSONObject(reviewJsonStr);
+            JSONArray jsonResults = null;
+            if (reviewJSON.has(OWM_RESULTS)) {
+                jsonResults = reviewJSON.getJSONArray(OWM_RESULTS);
+            }
+            else {
+                return reviews;
+            }
+            for (int i = 0; i < jsonResults.length(); i++) {
+                JSONObject review = jsonResults.getJSONObject(i);
+                String author = review.getString(OWM_AUTHOR);
+                String content = review.getString(OWM_CONTENT);
+
+                Review mReview = new Review(author, content);
+                reviews.add(mReview);
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return reviews;
     }
 }

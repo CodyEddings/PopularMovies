@@ -1,11 +1,15 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.example.android.popularmovies.utilities.NetworkUtils;
 
 import java.util.List;
 
@@ -37,10 +41,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            //TODO: launch youtube intent
-           /* Intent playVideoIntent =
-                    new Intent(Intent.ACTION_VIEW, Uri.parse(watchYoutubeURl));
-            mContext.startActivity(playVideoIntent);*/
+            final String youtubeVideoID = mYoutubeTrailerIDs.get(adapterPosition);
+            final String youtubeURL = NetworkUtils.buildYoutubeURL(youtubeVideoID);
+
+            Intent playVideoIntent =
+                    new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURL));
+            mContext.startActivity(playVideoIntent);
         }
     }
 
@@ -49,9 +55,9 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         mContext = parent.getContext();
         int layoutIdForListItem = R.layout.trailer_list_item;
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        boolean attachToParentImmediatly = false;
+        boolean attachToParentImmediately = false;
 
-        View view = inflater.inflate(layoutIdForListItem, parent, attachToParentImmediatly);
+        View view = inflater.inflate(layoutIdForListItem, parent, attachToParentImmediately);
         return new TrailerViewHolder(view);
     }
 

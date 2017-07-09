@@ -107,25 +107,25 @@
             android:textSize="20dp"
             android:padding="12dp"
             android:text="@string/trailers"
-            android:id="@+id/tv_trailers"/>
+            android:id="@+id/tv_trailers_section_label"/>
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/recyclerview_trailers"/>
+                android:id="@+id/rv_trailers"/>
 
             <TextView
                 android:id="@+id/tv_trailer_error_message_display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="18dp"
+                android:padding="6dp"
                 android:text="@string/trailer_load_error"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:visibility="invisible" />
 
             <ProgressBar
@@ -135,8 +135,47 @@
                 android:layout_gravity="center"
                 android:visibility="invisible" />
         </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:padding="12dp"
+            android:text="@string/reviews"
+            android:id="@+id/tv_reviews_section_label"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
 
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rv_reviews"/>
+
+            <TextView
+                android:id="@+id/tv_review_error_message_display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:text="@string/review_load_error"
+                android:textSize="18sp"
+                android:visibility="invisible" />
+
+            <ProgressBar
+                android:id="@+id/pb_review_loading_indicator"
+                android:layout_height="42dp"
+                android:layout_width="42dp"
+                android:layout_gravity="center"
+                android:visibility="invisible" />
+        </FrameLayout>
     </LinearLayout>
 
 </LinearLayout>
