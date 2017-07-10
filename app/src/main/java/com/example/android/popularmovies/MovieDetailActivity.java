@@ -37,7 +37,7 @@ import java.util.List;
 public class MovieDetailActivity extends AppCompatActivity {
     private String basePosterURL = "http://image.tmdb.org/t/p/";
     private String size = "w500";
-    private String posterPath, plot, title, rating, releaseDate, movieId;;
+    private String posterPath, plot, title, rating, ratingOutOfTen, releaseDate, movieId;;
     private Movie movie;
 
     private ProgressBar mTrailerLoadingProgress, mReviewLoadingProgress;
@@ -90,7 +90,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             movie = Parcels.unwrap(getIntent().getParcelableExtra("movie"));
 
             plot = movie.plot;
-            rating = movie.rating + "/10";
+            rating = movie.rating; //+ "/10";
+            ratingOutOfTen = rating + "/10";
             title = movie.title;
             releaseDate = movie.releaseDate;
             movieId = movie.id;
@@ -99,7 +100,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             //load views with their respective movie data
             Picasso.with(getBaseContext()).load(posterPath).into(mPoster);
             mPlot.setText(plot);
-            mRating.setText(rating);
+            mRating.setText(ratingOutOfTen);
             mTitle.setText(title);
             mRelease.setText(releaseDate);
 

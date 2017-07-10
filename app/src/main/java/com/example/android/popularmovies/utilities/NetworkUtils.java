@@ -18,7 +18,7 @@ import java.util.Scanner;
  */
 public final class NetworkUtils {
 
-    private static final String THEMOVIEDB_API_KEY = null;   //TODO: Add your personal api key for themoviedb.org
+    private static final String THEMOVIEDB_API_KEY = "22d22a9d610ad3f3ccf423152f7dc18d";
     private static final String THEMOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
